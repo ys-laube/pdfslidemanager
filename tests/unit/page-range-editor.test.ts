@@ -12,7 +12,6 @@ describe('createInspectorPanel saved layout controls', () => {
       onLayoutChange: () => undefined,
       onApplyRange: () => undefined,
       onApplyCurrentTemplateToRange: () => undefined,
-      onCropOptionsChange: () => undefined,
       onResetPage: () => undefined,
       onSaveCurrentLayout: () => undefined,
       onSelectSavedLayout: () => undefined,
@@ -26,7 +25,9 @@ describe('createInspectorPanel saved layout controls', () => {
     expectText(panel, 'Grid preset');
     expectText(panel, 'Saved crop layouts');
     expectText(panel, 'Current page crop copy');
-    expectText(panel, 'Saved crop layouts stay in this browser session for the currently loaded PDF');
+    expectText(panel, 'Save a crop layout once');
+    expect(panel.textContent!.indexOf('Saved crop layouts')).toBeLessThan(panel.textContent!.indexOf('Grid preset'));
+    expect(panel.textContent).not.toContain('Crop spacing');
     expect(getByTestId(panel, 'layout-picker').getAttribute('aria-label')).toBe('Grid preset for selected page');
     expect(getInput(panel, 'range-input').getAttribute('aria-label')).toBe('Shared page range for grid presets and saved crop layouts');
     expect(getSelect(panel, 'range-layout-select').getAttribute('aria-label')).toBe('Grid preset to apply to range');
@@ -43,7 +44,6 @@ describe('createInspectorPanel saved layout controls', () => {
       onLayoutChange: () => undefined,
       onApplyRange: () => undefined,
       onApplyCurrentTemplateToRange: () => undefined,
-      onCropOptionsChange: () => undefined,
       onResetPage: () => undefined,
       onSaveCurrentLayout: () => undefined,
       onSelectSavedLayout: () => undefined,
@@ -77,7 +77,6 @@ describe('createInspectorPanel saved layout controls', () => {
       onLayoutChange: () => undefined,
       onApplyRange: () => undefined,
       onApplyCurrentTemplateToRange: () => undefined,
-      onCropOptionsChange: () => undefined,
       onResetPage: () => undefined,
       onSaveCurrentLayout: () => undefined,
       onSelectSavedLayout: (layoutId) => calls.push(`select:${layoutId}`),
@@ -113,7 +112,6 @@ describe('createInspectorPanel saved layout controls', () => {
       onLayoutChange: () => undefined,
       onApplyRange: () => undefined,
       onApplyCurrentTemplateToRange: () => undefined,
-      onCropOptionsChange: () => undefined,
       onResetPage: () => undefined,
       onSaveCurrentLayout: () => undefined,
     });
@@ -131,7 +129,6 @@ describe('createInspectorPanel saved layout controls', () => {
       onLayoutChange: () => undefined,
       onApplyRange: () => undefined,
       onApplyCurrentTemplateToRange: () => undefined,
-      onCropOptionsChange: () => undefined,
       onResetPage: () => undefined,
       onSaveCurrentLayout: () => undefined,
       onUpdateSavedLayout: () => undefined,
@@ -155,7 +152,6 @@ describe('createInspectorPanel saved layout controls', () => {
       onLayoutChange: (layoutId) => calls.push(`grid-selected:${layoutId}`),
       onApplyRange: (range, layoutId) => calls.push(`grid-range:${range}:${layoutId}`),
       onApplyCurrentTemplateToRange: (range) => calls.push(`copy-current:${range}`),
-      onCropOptionsChange: () => undefined,
       onResetPage: () => undefined,
       onSaveCurrentLayout: () => calls.push('save'),
       onSelectSavedLayout: (layoutId) => calls.push(`select:${layoutId}`),

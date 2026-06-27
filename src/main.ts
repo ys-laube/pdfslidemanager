@@ -1,11 +1,11 @@
 import './styles.css';
 import { createSplitPdf } from './pdf/convert';
-import { applyCropBoxOverride, applyCropTemplateToPageRange, applyLayoutToPageRange, applyOutputCropBoxesOverride, buildConversionPlan, createDetectedPagePlan, updatePageCropOptions, updatePageLayout } from './pdf/grid';
+import { applyCropBoxOverride, applyCropTemplateToPageRange, applyLayoutToPageRange, applyOutputCropBoxesOverride, buildConversionPlan, createDetectedPagePlan, updatePageLayout } from './pdf/grid';
 import { suggestLayoutFromImage, suggestLayoutFromPageBox, type LayoutSuggestion } from './pdf/layout-detect';
 import { readPdfFile, type LoadedPdf } from './pdf/load';
 import { renderPdfPageForAnalysisWithMetadata, renderPdfPageToCanvas } from './pdf/render';
 import { initialState, reducer, type AppState } from './state/store';
-import type { AnalysisRenderMetadata, CropOptions, DetectionSource, LayoutPresetId, PagePlan } from './types';
+import type { AnalysisRenderMetadata, DetectionSource, LayoutPresetId, PagePlan } from './types';
 import { clear, element } from './ui/dom';
 import { createDropZone } from './ui/dropzone';
 import { createExportPanel, describeExportDisabledReason, installNoUploadNetworkGuard } from './ui/export';
@@ -90,7 +90,6 @@ function renderApp(): void {
         onLayoutChange: handleLayoutChange,
         onApplyRange: handleApplyRange,
         onApplyCurrentTemplateToRange: handleApplyCurrentTemplateToRange,
-        onCropOptionsChange: handleCropOptionsChange,
         onResetPage: handleResetPage,
         onSaveCurrentLayout: handleSaveCurrentLayout,
         onSelectSavedLayout: handleSelectSavedLayout,
@@ -263,14 +262,6 @@ function handleApplyCurrentTemplateToRange(range: string): void {
   if (!selectedPage) return;
   try {
     updatePages((pages) => applyCropTemplateToPageRange(pages, range, selectedPage));
-  } catch (error) {
-    dispatch({ type: 'error', message: getErrorMessage(error) });
-  }
-}
-
-function handleCropOptionsChange(options: CropOptions): void {
-  try {
-    updatePages((pages) => pages.map((page, index) => (index === state.selectedPageIndex ? updatePageCropOptions(page, options) : page)));
   } catch (error) {
     dispatch({ type: 'error', message: getErrorMessage(error) });
   }

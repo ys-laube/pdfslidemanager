@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { A4_LANDSCAPE_PAGE, fitCropWithinA4Landscape } from '../../src/pdf/convert';
-import { createPreviewStage, expectedOutputPreviewGeometry } from '../../src/ui/preview';
+import { createPreviewStage, createThumbnailRail, expectedOutputPreviewGeometry } from '../../src/ui/preview';
 import type { CropBox, PagePlan } from '../../src/types';
 
 describe('preview crop overlay', () => {
@@ -23,6 +23,27 @@ describe('preview crop overlay', () => {
 
     expect(stage.querySelector('[data-testid="review-needed-page"]')?.textContent).toMatch(/review needed/i);
     expect(stage.querySelector('[data-testid="preview-summary"]')?.textContent).toContain('2 output slides');
+  });
+
+  it('keeps the page rail compact with page numbers only', () => {
+    const selected: number[] = [];
+    const rail = createThumbnailRail({
+      pages: [
+        createPageWithActualDetectedCrops({ pageIndex: 0, pageNumber: 1, confidence: 'high' }),
+        createPageWithActualDetectedCrops({ pageIndex: 1, pageNumber: 2, overridden: true, origin: 'manual' }),
+      ],
+      selectedPageIndex: 1,
+      onSelectPage: (pageIndex) => selected.push(pageIndex),
+    });
+    const buttons = [...rail.querySelectorAll<HTMLButtonElement>('button')];
+
+    expect(buttons.map((button) => button.textContent)).toEqual(['1', '2']);
+    expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual(['Page 1', 'Page 2']);
+    expect(rail.textContent).not.toContain('Manual crop');
+    expect(rail.textContent).not.toContain('high');
+
+    buttons[0]?.click();
+    expect(selected).toEqual([0]);
   });
 
   it('emits crop-box updates when an expected output slide is deleted', () => {

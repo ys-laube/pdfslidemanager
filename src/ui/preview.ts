@@ -68,10 +68,14 @@ export function createThumbnailRail({ pages, selectedPageIndex, onSelectPage }: 
   pages.forEach((page, index) => {
     const button = element('button', {
       className: index === selectedPageIndex ? 'thumbnail-button is-selected' : 'thumbnail-button',
-      attrs: { type: 'button', 'aria-current': index === selectedPageIndex ? 'page' : 'false' },
+      attrs: {
+        type: 'button',
+        'aria-current': index === selectedPageIndex ? 'page' : 'false',
+        'aria-label': `Page ${page.pageNumber}`,
+        title: `Page ${page.pageNumber}`,
+      },
     }, [
-      element('span', { text: `Page ${page.pageNumber}` }),
-      element('small', { text: thumbnailStatus(page) }),
+      element('span', { className: 'thumbnail-page-number', text: String(page.pageNumber) }),
     ]);
     button.addEventListener('click', () => onSelectPage(index));
     list.append(element('li', {}, [button]));
@@ -239,12 +243,6 @@ export function expectedOutputPreviewGeometry(
     targetWidth: targetSize.width,
     targetHeight: targetSize.height,
   };
-}
-
-function thumbnailStatus(page: PagePlan): string {
-  if (page.overridden && page.origin === 'manual') return 'Manual crop';
-  if (page.overridden) return 'Overridden';
-  return page.confidence;
 }
 
 function createExpectedOutputPreview(page: PagePlan, options: PreviewStageOptions): HTMLElement {

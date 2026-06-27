@@ -1,6 +1,5 @@
 import { LAYOUT_PRESETS } from "../pdf/grid";
 import type {
-  CropOptions,
   LayoutPresetId,
   PagePlan,
   SavedLayoutTemplate,
@@ -16,7 +15,6 @@ export interface InspectorPanelOptions {
   onLayoutChange(layoutId: LayoutPresetId): void;
   onApplyRange(range: string, layoutId: LayoutPresetId): void;
   onApplyCurrentTemplateToRange(range: string): void;
-  onCropOptionsChange(options: CropOptions): void;
   onResetPage(): void;
   onSaveCurrentLayout?(): void;
   onSelectSavedLayout?(layoutId: string): void;
@@ -44,7 +42,6 @@ export function createInspectorPanel({
   onLayoutChange,
   onApplyRange,
   onApplyCurrentTemplateToRange,
-  onCropOptionsChange,
   onResetPage,
   onSaveCurrentLayout,
   onSelectSavedLayout,
@@ -100,48 +97,6 @@ export function createInspectorPanel({
     onApplyCurrentTemplateToRange(rangeInput.value);
   });
 
-  const currentMargin =
-    page.cropOptions.margin.top ??
-    page.cropOptions.margin.right ??
-    page.cropOptions.margin.bottom ??
-    page.cropOptions.margin.left ??
-    0;
-  const marginField = createNumberInput(
-    "Crop margin",
-    "margin-input",
-    currentMargin,
-  );
-  const gutterXField = createNumberInput(
-    "Horizontal gutter",
-    "gutter-x-input",
-    page.cropOptions.gutter.x ?? 0,
-  );
-  const gutterYField = createNumberInput(
-    "Vertical gutter",
-    "gutter-y-input",
-    page.cropOptions.gutter.y ?? 0,
-  );
-  const cropButton = element("button", {
-    className: "button button-secondary",
-    text: "Update crop spacing",
-    attrs: { type: "button", "data-testid": "update-crop-button" },
-  });
-  cropButton.addEventListener("click", () => {
-    const margin = Number(marginField.input.value) || 0;
-    onCropOptionsChange({
-      margin: {
-        top: margin,
-        right: margin,
-        bottom: margin,
-        left: margin,
-      },
-      gutter: {
-        x: Number(gutterXField.input.value) || 0,
-        y: Number(gutterYField.input.value) || 0,
-      },
-    });
-  });
-
   const resetButton = element("button", {
     className: "button button-secondary",
     text: "Reset this page",
@@ -153,20 +108,13 @@ export function createInspectorPanel({
     element('div', { className: 'panel-heading' }, [
       element('span', { className: 'eyebrow', text: `Page ${page.pageNumber} of ${pageCount}` }),
       element('h2', { text: 'Inspector' }),
-      element('p', { className: 'muted', text: page.reason }),
-    ]),
-    element('div', { className: 'panel-section' }, [
-      element('h3', { text: 'Grid preset' }),
-      element('p', { className: 'muted', text: 'Choose a 1x1, 1x2, 2x1, 2x2, 2x3, or 3x2 slide grid for this page, or apply one grid preset to an explicit range.' }),
-      gridPresetPicker,
-      element('div', { className: 'range-row' }, [rangeInputLabel, gridPresetSelectLabel]),
-      applyGridPresetButton,
     ]),
     createSavedLayoutsSection({
       savedLayouts,
       selectedSavedLayoutId,
       saveCurrentLayoutDisabledReason,
       rangeInput,
+      rangeInputLabel,
       onSaveCurrentLayout,
       onSelectSavedLayout,
       onRenameSavedLayout,
@@ -175,16 +123,17 @@ export function createInspectorPanel({
       onApplySavedLayout,
     }),
     element('div', { className: 'panel-section' }, [
-      element('h3', { text: 'Current page crop copy' }),
-      element('p', { className: 'muted', text: 'One-off copy: send this page crop overlay to the shared page range above without saving or changing a saved crop layout.' }),
-      applyTemplateButton,
+      element('h3', { text: 'Grid preset' }),
+      element('p', { className: 'muted', text: 'Choose this page layout, or apply one grid preset to the shared range above.' }),
+      gridPresetPicker,
+      element('div', { className: 'range-row' }, [gridPresetSelectLabel]),
+      applyGridPresetButton,
+      resetButton,
     ]),
     element('div', { className: 'panel-section' }, [
-      element('h3', { text: 'Crop spacing' }),
-      element('p', { className: 'muted', text: 'Values are PDF points. Increase margins to trim whitespace or gutters to skip gaps between slides.' }),
-      element('div', { className: 'number-grid' }, [marginField.label, gutterXField.label, gutterYField.label]),
-      cropButton,
-      resetButton,
+      element('h3', { text: 'Current page crop copy' }),
+      element('p', { className: 'muted', text: 'One-off copy to the shared range above without saving a layout.' }),
+      applyTemplateButton,
     ]),
   );
   return panel;
@@ -195,6 +144,7 @@ interface SavedLayoutsSectionOptions {
   selectedSavedLayoutId: string;
   saveCurrentLayoutDisabledReason: string;
   rangeInput: HTMLInputElement;
+  rangeInputLabel: HTMLLabelElement;
   onSaveCurrentLayout: (() => void) | undefined;
   onSelectSavedLayout: ((layoutId: string) => void) | undefined;
   onRenameSavedLayout: ((layoutId: string, name: string) => void) | undefined;
@@ -208,6 +158,7 @@ function createSavedLayoutsSection({
   selectedSavedLayoutId,
   saveCurrentLayoutDisabledReason,
   rangeInput,
+  rangeInputLabel,
   onSaveCurrentLayout,
   onSelectSavedLayout,
   onRenameSavedLayout,
@@ -304,7 +255,8 @@ function createSavedLayoutsSection({
 
   return element('div', { className: 'panel-section', attrs: { 'data-testid': 'saved-layouts-section' } }, [
     element('h3', { text: 'Saved crop layouts' }),
-    element('p', { className: 'muted', text: 'Saved crop layouts stay in this browser session for the currently loaded PDF. Apply the selected saved crop layout with the shared page range above.' }),
+    element('p', { className: 'muted', text: 'Save a crop layout once, then apply it quickly to other pages in this PDF session.' }),
+    rangeInputLabel,
     emptyState,
     disabledState,
     saveButton,
@@ -357,28 +309,4 @@ function createLayoutPicker(
     group.append(button);
   }
   return group;
-}
-
-function createNumberInput(
-  label: string,
-  testId: string,
-  value: number,
-): { label: HTMLLabelElement; input: HTMLInputElement } {
-  const input = element("input", {
-    attrs: {
-      type: "number",
-      min: "0",
-      step: "1",
-      value: String(value),
-      "aria-label": label,
-      "data-testid": testId,
-    },
-  });
-  return {
-    label: element("label", { className: "field-label" }, [
-      element("span", { text: label }),
-      input,
-    ]),
-    input,
-  };
 }
