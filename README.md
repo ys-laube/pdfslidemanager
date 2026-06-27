@@ -2,6 +2,8 @@
 
 PDF Slide Splitter is a static browser web app that turns multi-slide lecture or conference handout PDFs into one-slide-per-page PDFs for study workflows such as GoodNotes.
 
+Live app: https://ys-laube.github.io/pdfslidemanager/
+
 ## Privacy and runtime model
 
 - Processing is browser-only for v1.
