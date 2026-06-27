@@ -1,0 +1,31 @@
+{
+  "name": "pdf-slide-splitter-webapp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Static browser web app for locally splitting multi-slide PDF handouts into one-slide-per-page PDFs.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.0.227"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.1",
+    "eslint": "^9.39.2",
+    "jsdom": "^28.0.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.50.0",
+    "vite": "^8.1.0",
+    "vitest": "^4.0.16"
+  }
+}
