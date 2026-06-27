@@ -98,7 +98,7 @@ After creating an empty GitHub repository, add the remote and push the clean upl
 
 ```bash
 git remote add origin git@github.com:<your-user>/<your-repo>.git
-git push -u origin github-ready:main
+git push -u origin main
 ```
 
 If you prefer HTTPS remotes, use `https://github.com/<your-user>/<your-repo>.git` instead of the SSH URL.
